@@ -13,6 +13,10 @@ CLASH_CONFIG="/tmp/config.yaml"
 append=$(uci get clash.config.append_rules 2>/dev/null)
 if [ "${append}" -eq 1 ];then
 
+if [ -f $CLASH_CONFIG ];then
+	rm -rf $CLASH_CONFIG 2>/dev/null
+fi
+
 cp $CONFIG_YAML $CLASH_CONFIG 2>/dev/null
 if [ ! -z "$(grep "^Rule:" "$CLASH_CONFIG")" ]; then
 	sed -i "/^Rule:/i\#RULESTART#" $CLASH_CONFIG 2>/dev/null
@@ -47,6 +51,15 @@ ipadd()
 	   config_get "ipaaddr" "$section" "ipaaddr" ""
 	   config_get "type" "$section" "type" ""
 	   config_get "res" "$section" "res" ""
+	   
+	   if [ -z "$type" ]; then
+		  return
+	   fi
+ 
+	   if [ -z "$pgroup" ]; then
+		  return
+	   fi
+	   
 	   if [ "${res}" -eq 1 ];then
 		echo "- $type,$ipaaddr,$pgroup,no-resolve">>/tmp/ipadd.conf
 	   else
